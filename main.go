@@ -2,25 +2,23 @@ package main
 
 import (
 	"encoding/csv"
+	"flag"
 	"fmt"
-	"log"
 	"os"
 )
 
-type Quiz struct {
-	Question, Answer string
-}
-
 func main() {
 
-	args := os.Args
-	fmt.Println(args)
+	csvFileName := flag.String("csv", "problems.csv", "a csv file in the format of question,answer")
+
+	flag.Parse()
 
 	// Open the mentioned file
-	file, err := os.Open("problems.csv")
+	file, err := os.Open(*csvFileName)
 
 	if err != nil {
-		log.Fatal(err)
+		ErrExit(fmt.Sprintf("Unable to open file %s : %s\n", *csvFileName, err))
+
 	}
 
 	// Closes the file after the reading it
@@ -29,7 +27,8 @@ func main() {
 	// Read the csv records data
 	records, err := csv.NewReader(file).ReadAll()
 	if err != nil {
-		log.Fatal(err)
+
+		ErrExit(fmt.Sprintf("Unable to parse csv file %s : %s\n", *csvFileName, err))
 	}
 
 	QuizGame(records)
@@ -84,4 +83,9 @@ func ReadInput() string {
 
 	return input
 
+}
+
+func ErrExit(msg string) {
+	fmt.Println(msg)
+	os.Exit(1)
 }
